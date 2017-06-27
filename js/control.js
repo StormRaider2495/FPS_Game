@@ -11,10 +11,8 @@ function Control(camera) {
         moveback: false,
         moveleft: false,
         moveright: false
-
     };
 }
-
 
 Control.prototype.resetMove = function(key) {
 
@@ -52,7 +50,6 @@ Control.prototype.setMove = function(key) {
             {
                 this.control_state.moveforward = true;
                 break;
-
             }
         case this.keys.s:
             {
@@ -63,7 +60,6 @@ Control.prototype.setMove = function(key) {
             {
                 this.control_state.moveleft = true;
                 break;
-
             }
         case this.keys.d:
             {
@@ -90,22 +86,22 @@ Control.prototype.update = function() {
 };
 
 Control.prototype.moveForward = function() {
-
-    this.camera.position.z -= moveSpeed;
-
+    this.camera.position.z -= MOVESPEED;
 };
 
 Control.prototype.moveBack = function() {
-
-    this.camera.position.z += moveSpeed;
-
+    this.camera.position.z += MOVESPEED;
 };
 
 Control.prototype.moveLeft = function() {
-
-    this.camera.position.x -= (moveSpeed / 2);;
+    this.camera.position.x -= (MOVESPEED / 2);;
 };
 
 Control.prototype.moveRight = function() {
-    this.camera.position.x += (moveSpeed / 2);
+    this.camera.position.x += (MOVESPEED / 2);
 };
+
+Control.prototype.lookAround= function(delta){
+      this.camera.rotation.y+=delta;
+    //  player.rotation.y+=delta;
+}

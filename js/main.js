@@ -1,5 +1,5 @@
 // Set up the scene, camera, and renderer as global variables.
-var scene, camera, lights, renderer, model, controls, movementControls, moveSpeed = 10;
+var scene, camera, lights, renderer, model, player, controls, movementControls, MOVESPEED = 10, LOOKSPEED = 5;
 var UNITSIZE = 500,
     WALLHEIGHT = UNITSIZE / 1.5,
     map = [ // 1  2  3  4  5  6  7  8  9
@@ -17,13 +17,17 @@ var UNITSIZE = 500,
     // map = createMap(20, 20),
     mapW = map.length,
     mapH = map[0].length,
-    units = mapW;
+    units = mapW,
+    mouse = {
+        x: 0,
+        y: 0
+    };
 
 init();
 animate();
 
 function init() {
-
+    // scene
     scene = new THREE.Scene();
     var WIDTH = window.innerWidth,
         HEIGHT = window.innerHeight;
@@ -37,9 +41,16 @@ function init() {
 
     // camera
     camera = new THREE.PerspectiveCamera(50, WIDTH / HEIGHT, 0.1, 20000);
-    camera.position.set(235.5, 108.5, 214.5);
-    // camera.position.set(-92,5664,-2870);
+    // camera.position.set(235.5, 115, 214.5);
+    camera.position.set(3000, 115, 2035);
     scene.add(camera);
+
+  //   // Camera moves with mouse, flies around with WASD/arrow keys
+	// controls = new THREE.FirstPersonControls(camera); // Handles camera control
+	// controls.movementSpeed = MOVESPEED; // How fast the player can walk around
+	// controls.lookSpeed = LOOKSPEED; // How fast the player can look around with the mouse
+	// controls.lookVertical = false; // Don't allow the player to look up or down. This is a temporary fix to keep people from flying
+	// controls.noFly = true; // Don't allow hitting R or F to go up or down
 
     window.addEventListener('resize', function() {
         var WIDTH = window.innerWidth,
@@ -49,7 +60,7 @@ function init() {
         camera.updateProjectionMatrix();
     });
 
-    // lights
+    // lights: PointLight
     lights = new THREE.PointLight(0xffffff);
     lights.intensity = 2;
     lights.distance = 1500;
@@ -60,6 +71,7 @@ function init() {
     lights.castShadow = true;
     scene.add(lights);
 
+    // lights: AmbientLight
     var ambient = new THREE.AmbientLight(0x404040); // soft white light
     ambient.intensity = 1;
     scene.add(ambient);
@@ -90,16 +102,11 @@ function init() {
         'assets/skybox/back.png', // back
         'assets/skybox/front.png' // front
     ], 8000));
-
-
-
     mapRender();
-
     spawnPlayer();
-
     attachListener();
     movementControls = new Control(camera);
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // controls = new THREE.OrbitControls(camera, renderer.domElement);
 }
 
 
@@ -108,8 +115,13 @@ function animate() {
     lights.position.x = camera.position.x;
     lights.position.y = camera.position.y;
     lights.position.z = camera.position.z;
+    player.position.x = camera.position.x + 130;
+    player.position.y = camera.position.y / 1.5;
+    player.position.z = camera.position.z - 200;
+
     renderer.render(scene, camera);
     movementControls.update();
+    // controls.update();
 }
 
 function makeSkybox(urls, size) {
@@ -130,7 +142,7 @@ function makeSkybox(urls, size) {
 }
 
 function mapRender() {
-    // Geometry: walls
+    // Geometry: floor
     var floor;
     var loader = new THREE.TextureLoader();
     var texture = loader.load('assets/floor-1.jpg', function(texture) {
@@ -139,19 +151,22 @@ function mapRender() {
         texture.repeat.set(50, 50);
     });
     floor = new THREE.Mesh(
-        new THREE.CubeGeometry(units * (UNITSIZE+250), 10, units * (UNITSIZE+250)),
+        new THREE.CubeGeometry(units * (UNITSIZE + 250), 10, units * (UNITSIZE + 250)),
         new THREE.MeshLambertMaterial({
             map: texture
         })
     );
     scene.add(floor);
 
+    //Geometry: walls
     var cube = new THREE.CubeGeometry(UNITSIZE, WALLHEIGHT, UNITSIZE);
     var materials = [
-        new THREE.MeshLambertMaterial({ /*color: 0x00CCAA,*/
+        new THREE.MeshLambertMaterial({
+            // color: 0x00CCAA,
             map: THREE.ImageUtils.loadTexture('assets/wall-1.jpg')
         }),
-        new THREE.MeshLambertMaterial({ /*color: 0xC5EDA0,*/
+        new THREE.MeshLambertMaterial({
+            // color: 0xC5EDA0,
             map: THREE.ImageUtils.loadTexture('assets/wall-2.jpg')
         }),
         new THREE.MeshLambertMaterial({
@@ -174,25 +189,48 @@ function mapRender() {
 function spawnPlayer() {
     var i = parseInt(Math.random() * 10),
         j = parseInt(Math.random() * 10);
-
     if (map[i][j] == 0) {
         var x = (i - units / 2) * UNITSIZE;
         var z = (j - units / 2) * UNITSIZE;
         camera.position.x = x;
         camera.position.z = z;
+
+        var loader = new THREE.TextureLoader();
+        var pMaterial = new THREE.MeshBasicMaterial({
+            map: THREE.ImageUtils.loadTexture('assets/gun.png'),
+            transparent: true
+        });
+        player = new THREE.Mesh(new THREE.PlaneGeometry(128, 128), pMaterial);
+        // player.overdraw = true;
+        scene.add(player);
     } else {
         spawnPlayer();
     }
-
 }
 
 function attachListener() {
     document.getElementsByTagName('body')[0].addEventListener('keydown', function(event) {
         movementControls.setMove(event.keyCode);
-
     });
 
     document.getElementsByTagName('body')[0].addEventListener('keyup', function(event) {
         movementControls.resetMove(event.keyCode);
+    });
+
+    document.getElementsByTagName('body')[0].addEventListener('mousemove', function(event) {
+        var delx = 0,
+            dely = 0;
+
+        delx = mouse.x - event.clientX;
+        dely = mouse.y - event.clientY;
+
+        // delx=delx<0?delx*-1:delx,
+        // dely=dely<0?dely*-1:dely;
+
+        movementControls.lookAround(delx / 100);
+        player.position.x += delx / 100;
+        mouse.x = event.clientX;
+        mouse.y = event.clientY;
+
     });
 }
