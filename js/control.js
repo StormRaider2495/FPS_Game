@@ -14,7 +14,7 @@ function Control(camera) {
     };
 }
 
-Control.prototype.resetMove = function(key) {
+Control.prototype.resetMove = function (key) {
 
     //disables keys
 
@@ -42,34 +42,46 @@ Control.prototype.resetMove = function(key) {
     }
 }
 
-Control.prototype.setMove = function(key) {
+Control.prototype.setMove = function (key) {
 
     //enables keys
+
     switch (key) {
         case this.keys.w:
             {
-                this.control_state.moveforward = true;
+                
+                
+                    this.control_state.moveforward = true;
+                
                 break;
+
             }
         case this.keys.s:
             {
-                this.control_state.moveback = true;
+                
+                    this.control_state.moveback = true;
+                
                 break;
             }
         case this.keys.a:
             {
-                this.control_state.moveleft = true;
+                
+                    this.control_state.moveleft = true;
+                
                 break;
             }
         case this.keys.d:
             {
-                this.control_state.moveright = true;
+                
+                    this.control_state.moveright = true;
+                
                 break;
             }
     }
+
 };
 
-Control.prototype.update = function() {
+Control.prototype.update = function () {
 
     if (this.control_state.moveforward) {
         this.moveForward();
@@ -85,23 +97,32 @@ Control.prototype.update = function() {
     }
 };
 
-Control.prototype.moveForward = function() {
+Control.prototype.moveForward = function () {
+    if (!checkWallCollision(camera.position,-2,1)) {
     this.camera.position.z -= MOVESPEED;
+    }
 };
 
-Control.prototype.moveBack = function() {
+Control.prototype.moveBack = function () {
+    if (!checkWallCollision(camera.position,2,1)) {
+        
     this.camera.position.z += MOVESPEED;
+    }
 };
 
-Control.prototype.moveLeft = function() {
-    this.camera.position.x -= (MOVESPEED / 2);;
+Control.prototype.moveLeft = function () {
+    if (!checkWallCollision(camera.position,-10,0)) {
+    this.camera.position.x -= (MOVESPEED / 2);
+    }
 };
 
-Control.prototype.moveRight = function() {
+Control.prototype.moveRight = function () {
+    if (!checkWallCollision(camera.position,10,0)) {
     this.camera.position.x += (MOVESPEED / 2);
+    }
 };
 
-Control.prototype.lookAround= function(delta){
-      this.camera.rotation.y+=delta;
+Control.prototype.lookAround = function (delta) {
+    this.camera.rotation.y += delta;
     //  player.rotation.y+=delta;
 }
