@@ -1,18 +1,19 @@
 // Set up the scene, camera, and renderer as global variables.
-var scene, camera, lights, renderer, model, player, controls, movementControls, MOVESPEED = 10, LOOKSPEED = 5;
+var scene, camera, lights, renderer, model, player, controls, movementControls, MOVESPEED = 10,
+    LOOKSPEED = 5;
 var UNITSIZE = 500,
     WALLHEIGHT = UNITSIZE / 1.5,
     map = [ // 1  2  3  4  5  6  7  8  9
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 0
-        [1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,], // 1
-        [1, 1, 0, 0, 2, 0, 0, 0, 0, 1, 1,], // 2
-        [1, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1,], // 3
-        [1, 0, 0, 2, 0, 0, 2, 0, 0, 1, 1,], // 4
-        [1, 0, 0, 0, 2, 0, 0, 0, 1, 1, 1,], // 5
-        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,], // 6
-        [1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1,], // 7
-        [1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1,], // 8
-        [1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,], // 9
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ], // 0
+        [1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, ], // 1
+        [1, 1, 0, 0, 2, 0, 0, 0, 0, 1, 1, ], // 2
+        [1, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1, ], // 3
+        [1, 0, 0, 2, 0, 0, 2, 0, 0, 1, 1, ], // 4
+        [1, 0, 0, 0, 2, 0, 0, 0, 1, 1, 1, ], // 5
+        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, ], // 6
+        [1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, ], // 7
+        [1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, ], // 8
+        [1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, ], // 9
     ],
     // map = createMap(20, 20),
     mapW = map.length,
@@ -45,14 +46,14 @@ function init() {
     camera.position.set(3000, 115, 2035);
     scene.add(camera);
 
-    //   // Camera moves with mouse, flies around with WASD/arrow keys
+    // // Camera moves with mouse, flies around with WASD/arrow keys
     // controls = new THREE.FirstPersonControls(camera); // Handles camera control
     // controls.movementSpeed = MOVESPEED; // How fast the player can walk around
     // controls.lookSpeed = LOOKSPEED; // How fast the player can look around with the mouse
     // controls.lookVertical = false; // Don't allow the player to look up or down. This is a temporary fix to keep people from flying
     // controls.noFly = true; // Don't allow hitting R or F to go up or down
 
-    window.addEventListener('resize', function () {
+    window.addEventListener('resize', function() {
         var WIDTH = window.innerWidth,
             HEIGHT = window.innerHeight;
         renderer.setSize(WIDTH, HEIGHT);
@@ -107,7 +108,11 @@ function init() {
     attachListener();
     movementControls = new Control(camera);
     // controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
 }
+
+
 
 function checkWallCollision(pos, d, x) {
 
@@ -119,16 +124,18 @@ function checkWallCollision(pos, d, x) {
 
 function getMapSector(v, d, x) {
     //x=1 for forward move or backward move x=0 for left or right move
-    if (x) {
+    if (x === 1) {
         var x = Math.floor((v.x) / UNITSIZE + mapW / 2);
         var z = Math.floor((v.z + d) / UNITSIZE + mapW / 2);
-    }
-    else {
+    } else {
         var x = Math.floor((v.x + d) / UNITSIZE + mapW / 2);
         var z = Math.floor((v.z) / UNITSIZE + mapW / 2);
     }
 
-    return { x: x, z: z };
+    return {
+        x: x,
+        z: z
+    };
 }
 
 
@@ -138,9 +145,9 @@ function animate() {
     lights.position.x = camera.position.x;
     lights.position.y = camera.position.y;
     lights.position.z = camera.position.z;
-    player.position.x = camera.position.x + 130;
-    player.position.y = camera.position.y / 1.5;
-    player.position.z = camera.position.z - 200;
+    // player.position.x = camera.position.x + 130;
+    // player.position.y = camera.position.y / 1.5;
+    // player.position.z = camera.position.z - 200;
 
     renderer.render(scene, camera);
 
@@ -172,7 +179,7 @@ function mapRender() {
     // Geometry: floor
     var floor;
     var loader = new THREE.TextureLoader();
-    var texture = loader.load('assets/floor-1.jpg', function (texture) {
+    var texture = loader.load('assets/floor-1.jpg', function(texture) {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.offset.set(0, 0);
         texture.repeat.set(50, 50);
@@ -221,31 +228,40 @@ function spawnPlayer() {
         var z = (j - units / 2) * UNITSIZE;
         camera.position.x = x;
         camera.position.z = z;
-
-        var loader = new THREE.TextureLoader();
-        var pMaterial = new THREE.MeshBasicMaterial({
-            map: THREE.ImageUtils.loadTexture('assets/gun.png'),
-            transparent: true
-        });
-        player = new THREE.Mesh(new THREE.PlaneGeometry(128, 128), pMaterial);
+        // var loader = new THREE.TextureLoader();
+        // var pMaterial = new THREE.MeshBasicMaterial({
+        //     map: THREE.ImageUtils.loadTexture('assets/gun.png'),
+        //     transparent: true
+        // });
+        // player = new THREE.Mesh(new THREE.PlaneGeometry(128, 128), pMaterial);
         // player.overdraw = true;
-        player.position = camera.position;
-        scene.add(player);
+        // player.position = camera.position;
+        // scene.add(player);
+
+        var img = document.createElement("img");
+        img.src = 'assets/gun.png';
+        img.style.position = "fixed";
+        img.style.bottom = 0;
+        img.style.right = 0;
+        img.onload = function() {
+            document.getElementsByTagName("body")[0].appendChild(img);
+        }
     } else {
         spawnPlayer();
     }
 }
 
 function attachListener() {
-    document.getElementsByTagName('body')[0].addEventListener('keydown', function (event) {
+
+    document.getElementsByTagName('body')[0].addEventListener('keydown', function(event) {
         movementControls.setMove(event.keyCode);
     });
 
-    document.getElementsByTagName('body')[0].addEventListener('keyup', function (event) {
+    document.getElementsByTagName('body')[0].addEventListener('keyup', function(event) {
         movementControls.resetMove(event.keyCode);
     });
 
-    document.getElementsByTagName('body')[0].addEventListener('mousemove', function (event) {
+    document.getElementsByTagName('body')[0].addEventListener('mousemove', function(event) {
         var delx = 0,
             dely = 0;
 
@@ -257,9 +273,11 @@ function attachListener() {
 
         movementControls.lookAround(delx / 100);
 
-        player.position.x += delx;
+        // player.position.x += delx;
         mouse.x = event.clientX;
         mouse.y = event.clientY;
+        
+        camera.position.add(camera.getWorldDirection());
 
     });
 
