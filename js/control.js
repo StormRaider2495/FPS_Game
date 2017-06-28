@@ -123,6 +123,7 @@ Control.prototype.moveRight = function () {
 };
 
 Control.prototype.lookAround = function (delta) {
-    this.camera.rotation.y += delta;
+    //this.camera.rotation.y += delta;
+    camera.rotateOnAxis( new THREE.Vector3(0,1,0), delta);
     //  player.rotation.y+=delta;
 }
